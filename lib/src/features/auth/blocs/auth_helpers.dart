@@ -1,9 +1,11 @@
+// ignore_for_file: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:eulaiq/src/common/common.dart';
 import 'package:eulaiq/src/common/constants/dio_config.dart';
-import 'package:eulaiq/src/common/constants/global_state.dart';
+import 'package:eulaiq/src/features/auth/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AuthStatus {

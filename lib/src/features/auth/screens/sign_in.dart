@@ -140,7 +140,7 @@ class SignInScreen extends ConsumerWidget {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () => context.router.push(ResetPasswordRoute()),
+                        onPressed: () => context.router.push(const ResetPasswordRoute()),
                         child: Text(
                           'Forgot Password?',
                           style: TextStyle(
@@ -217,7 +217,7 @@ class SignInScreen extends ConsumerWidget {
                             const TextSpan(text: "Don't have an account? "),
                             WidgetSpan(
                               child: GestureDetector(
-                                onTap: () => context.router.push(SignUpRoute()),
+                                onTap: () => context.router.push(const SignUpRoute()),
                                 child: Text(
                                   'Sign up',
                                   style: TextStyle(

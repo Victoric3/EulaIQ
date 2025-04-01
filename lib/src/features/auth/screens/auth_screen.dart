@@ -211,7 +211,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                               const TextSpan(text: "Don't have an account? "),
                               WidgetSpan(
                                 child: GestureDetector(
-                                  onTap: () => context.router.push(SignUpRoute()),
+                                  onTap: () => context.router.push(const SignUpRoute()),
                                   child: Text(
                                     'Sign up',
                                     style: TextStyle(

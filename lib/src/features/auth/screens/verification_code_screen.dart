@@ -320,7 +320,7 @@ class _VerificationCodeScreenState extends ConsumerState<VerificationCodeScreen>
         ),
         SizedBox(height: size.height * 0.03),
         Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: isDark 
@@ -334,7 +334,7 @@ class _VerificationCodeScreenState extends ConsumerState<VerificationCodeScreen>
                 color: isDark ? AppColors.neonCyan : AppColors.brandDeepGold,
                 size: 20,
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.',
@@ -478,7 +478,7 @@ class _CustomTextField extends StatelessWidget {
             fillColor: isDark 
                 ? AppColors.darkBg 
                 : Colors.white,
-            contentPadding: EdgeInsets.symmetric(
+            contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
             ),

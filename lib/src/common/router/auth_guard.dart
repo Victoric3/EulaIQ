@@ -18,6 +18,7 @@ class AuthGuard extends AutoRouteGuard {
       if (isAuth) {
         resolver.next(true);
       } else {
+        // Use IntroRoute instead of a welcome page as it seems to be your entry point
         router.push(const IntroRoute());
         resolver.next(false);
       }

@@ -1,4 +1,5 @@
 import 'package:eulaiq/src/common/services/firebase_messaging_service.dart';
+import 'package:eulaiq/src/common/services/session_expiration_handler.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:eulaiq/src/common/utils/app_lifecycle_manager.dart';
+import 'package:eulaiq/src/common/utils/memory_monitor.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -17,9 +20,31 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
 
+// Register a lifecycle observer to handle cleanup
+class AppLifecycleObserver extends WidgetsBindingObserver {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      // Clean up resources when app is closing
+      SessionExpirationHandler.dispose();
+    }
+  }
+}
+
 void main() async {
   try {
+    // Set error handling
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      debugPrint('Flutter error: ${details.exception}');
+    };
+    
+    // Reset app state on start (helps with hot reload)
     WidgetsFlutterBinding.ensureInitialized();
+    AppLifecycleManager.resetAppState();
+    
+    // Register the observer for lifecycle events
+    WidgetsBinding.instance.addObserver(AppLifecycleObserver());
     
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -38,13 +63,16 @@ void main() async {
       await DioConfig.setupDio();
     }
     
+    // Start memory monitoring in debug mode
+    MemoryMonitor.startMonitoring();
+    
     runApp(
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           firebaseMessagingServiceProvider.overrideWithValue(messagingService),
         ],
-        child: const MyApp(),
+        child: MyApp(),
       ),
     );
   } catch (e, stackTrace) {

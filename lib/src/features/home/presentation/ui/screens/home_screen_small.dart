@@ -1,21 +1,61 @@
+import 'package:eulaiq/src/features/auth/data/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:eulaiq/src/common/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'dart:ui';
+import 'package:eulaiq/src/features/auth/providers/user_provider.dart';
+
+// Change from autoDispose to regular provider to maintain state across reloads
+final homeScrollControllerProvider = Provider((ref) {
+  final controller = ScrollController();
+  ref.onDispose(() {
+    controller.dispose(); // Proper disposal when actually needed
+  });
+  return controller;
+});
 
 @RoutePage()
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> with AutomaticKeepAliveClientMixin {
+  // Add AutomaticKeepAliveClientMixin to preserve state during tab navigation
+  late ScrollController scrollController;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Get controller reference in initState instead of build
+    scrollController = ref.read(homeScrollControllerProvider);
+  }
+  
+  @override
+  void dispose() {
+    // Don't dispose the controller here as it's managed by the provider
+    super.dispose();
+  }
+  
+  @override
+  bool get wantKeepAlive => true; // Keep this widget alive
+  
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+    
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final size = MediaQuery.of(context).size;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final viewPadding = MediaQuery.of(context).viewPadding;
-
+    
+    // Use watch just for the user state, not the controller
+    final userState = ref.watch(userProvider);
+    
     return Scaffold(
       body: Container(
         // Enhanced background matching auth screen style
@@ -41,17 +81,21 @@ class HomeScreen extends ConsumerWidget {
           minHeight: size.height,
         ),
         child: CustomScrollView(
+          key: const PageStorageKey('homeScrollView'),
+          controller: scrollController, // Use the controller from initState
           physics: const BouncingScrollPhysics(),
           slivers: [
             // Using SliverPersistentHeader with increased size
             SliverPersistentHeader(
+              key: const ValueKey('homeHeader'),
               pinned: true,
               floating: true,
               delegate: _HeaderDelegate(
                 isDark: isDark,
                 viewPadding: viewPadding,
                 headerMaxExtent: 220.0, // Increased to properly fit content
-                headerMinExtent: 80.0,  // Increased for better appearance when collapsed
+                headerMinExtent: 210.0,  // Increased for better appearance when collapsed
+                user: userState.valueOrNull, // Pass user data to header
               ),
             ),
             
@@ -63,11 +107,11 @@ class HomeScreen extends ConsumerWidget {
                   // Ensure we have at least minimal content to fill viewport
                   SizedBox(
                     height: size.height - 280 - bottomPadding,
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         'Content will be added here',
                         style: TextStyle(
-                          color: isDark ? Colors.white60 : Colors.black45,
+                          color: Colors.grey,
                         ),
                       ),
                     ),
@@ -86,8 +130,11 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
+  // Change this method to remove the Hero wrapper
   Widget _buildAICopilotFAB(bool isDark) {
+    // Remove the Hero widget and use heroTag property instead
     return FloatingActionButton(
+      heroTag: 'ai_copilot_fab', // Set custom hero tag here
       onPressed: () {},
       backgroundColor: isDark 
         ? AppColors.darkBg 
@@ -123,12 +170,14 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
   final EdgeInsets viewPadding;
   final double headerMaxExtent;
   final double headerMinExtent;
+  final UserModel? user; // Add user parameter
 
   _HeaderDelegate({
     required this.isDark,
     required this.viewPadding,
     required this.headerMaxExtent,
     required this.headerMinExtent,
+    this.user, // Make it optional
   });
 
   @override
@@ -253,6 +302,7 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
 
   Widget _buildTopRow(bool isDark, BuildContext context) {
     return Padding(
+      key: const ValueKey('topRowHeader'),
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -282,26 +332,15 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      'https://i.ibb.co/DDprFVbN/Eula-dipa-2.jpg',
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return CircleAvatar(
-                          radius: 20,
-                          backgroundColor: isDark ? AppColors.darkBg : Colors.white,
-                          child: Text(
-                            'E',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? AppColors.neonCyan : AppColors.brandDeepGold,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                    child: user?.photo != null && user!.photo.isNotEmpty
+                      ? Image.network(
+                          user!.photo,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(isDark),
+                        )
+                      : _buildDefaultAvatar(isDark),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -320,7 +359,9 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
                         ),
                       ),
                       Text(
-                        'Dr. Smith',
+                        user != null 
+                          ? '${user!.firstname} ${user!.lastname}'
+                          : 'Guest User',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -421,6 +462,7 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
 
   Widget _buildSearchBar(bool isDark, BuildContext context) {
     return Container(
+      key: const ValueKey('searchBar'),
       height: 45, // Slightly increased height
       decoration: BoxDecoration(
         color: isDark 
@@ -500,6 +542,7 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
     final filters = ['All', 'Books', 'Videos', 'Audio', 'Questions'];
     
     return ListView.builder(
+      key: const ValueKey('filterChips'),
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: filters.length,
@@ -548,6 +591,23 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
     );
   }
 
+  Widget _buildDefaultAvatar(bool isDark) {
+    return CircleAvatar(
+      radius: 20,
+      backgroundColor: isDark ? AppColors.darkBg : Colors.white,
+      child: Text(
+        user?.firstname.isNotEmpty == true 
+            ? user!.firstname[0].toUpperCase() 
+            : 'G',
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: isDark ? AppColors.neonCyan : AppColors.brandDeepGold,
+        ),
+      ),
+    );
+  }
+
   @override
   double get maxExtent => headerMaxExtent;
 
@@ -558,6 +618,7 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant _HeaderDelegate oldDelegate) {
     return oldDelegate.isDark != isDark || 
            oldDelegate.headerMaxExtent != headerMaxExtent || 
-           oldDelegate.headerMinExtent != headerMinExtent;
+           oldDelegate.headerMinExtent != headerMinExtent ||
+           oldDelegate.user?.id != user?.id; // Add user ID comparison
   }
 }

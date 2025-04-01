@@ -1,4 +1,4 @@
-import 'package:eulaiq/src/common/constants/dio_config.dart';
+// import 'package:eulaiq/src/common/constants/dio_config.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -105,7 +105,7 @@ class FirebaseMessagingService {
 
     const notificationDetails = NotificationDetails(
       android: androidDetails,
-      iOS: const DarwinNotificationDetails(),
+      iOS: DarwinNotificationDetails(),
     );
 
     await _localNotifications.show(
@@ -140,20 +140,20 @@ class FirebaseMessagingService {
     await _firebaseMessaging.unsubscribeFromTopic(topic);
   }
 
-  Future<void> _updateTokenInBackend(String token) async {
-    try {
-      final response = await DioConfig.dio?.put(
-        '/users/devices/token',
-        data: {'fcmToken': token},
-      );
+  // Future<void> _updateTokenInBackend(String token) async {
+  //   try {
+  //     final response = await DioConfig.dio?.put(
+  //       '/users/devices/token',
+  //       data: {'fcmToken': token},
+  //     );
 
-      if (response?.statusCode == 200) {
-        print('FCM token updated in backend');
-      }
-    } catch (e) {
-      print('Failed to update FCM token in backend: $e');
-    }
-  }
+  //     if (response?.statusCode == 200) {
+  //       print('FCM token updated in backend');
+  //     }
+  //   } catch (e) {
+  //     print('Failed to update FCM token in backend: $e');
+  //   }
+  // }
 }
 
 final firebaseMessagingServiceProvider = Provider<FirebaseMessagingService>((ref) {

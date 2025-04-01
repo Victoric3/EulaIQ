@@ -5,6 +5,9 @@ import 'package:eulaiq/src/features/auth/screens/auth_screen.dart';
 import 'package:eulaiq/src/features/auth/screens/intro_page.dart';
 import 'package:eulaiq/src/features/auth/screens/reset_password_screen.dart';
 import 'package:eulaiq/src/features/auth/screens/verification_code_screen.dart';
+import 'package:eulaiq/src/features/library/presentation/ui/screens/ebook_detail_screen.dart';
+import 'package:eulaiq/src/features/reader/presentation/ui/screens/document_viewer_screen.dart';
+import 'package:eulaiq/src/features/reader/presentation/ui/screens/reader_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:eulaiq/src/features/features.dart';
 
@@ -25,8 +28,23 @@ class AppRouter extends _$AppRouter {
     AutoRoute(path: '/signup', page: SignUpRoute.page),
     AutoRoute(path: '/intro', page: IntroRoute.page),
     AutoRoute(path: '/home', page: HomeRoute.page, guards: [AuthGuard()]),
+    AutoRoute(
+      path: '/library',
+      page: LibraryRoute.page,
+      guards: [AuthGuard()],
+    ),
     AutoRoute(path: '/verify', page: VerificationCodeRoute.page),
     AutoRoute(path: '/reset-password', page: ResetPasswordRoute.page),
+    AutoRoute(
+      path: '/ebook/:id',
+      page: EbookDetailRoute.page,
+      guards: [AuthGuard()],
+    ),
+    AutoRoute(path: '/document', page: DocumentViewerRoute.page),
+    AutoRoute(
+      path: '/reader/:ebookId',
+      page: ReaderRoute.page,
+    ),
     CustomRoute(
       page: TabsRoute.page,
       path: '/tabs',

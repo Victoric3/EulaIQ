@@ -10,6 +10,8 @@ import 'package:eulaiq/src/common/common.dart';
 import 'package:eulaiq/src/common/constants/dio_config.dart';
 import 'package:eulaiq/src/common/constants/global_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/user_provider.dart';
+
 
 class SignInState extends ChangeNotifier {
   final emailRegExp = RegExp(
@@ -26,6 +28,7 @@ class SignInState extends ChangeNotifier {
 
   bool get passwordVisibility => _passwordVisible;
   bool get continueButtonEnabled => _continue;
+
 
   void togglePasswordVisibility() {
     _passwordVisible = !_passwordVisible;
@@ -82,7 +85,10 @@ class SignInState extends ChangeNotifier {
       if (response?.statusCode == 200) {
         ref.read(loadingProvider.notifier).state = false;
         ref.read(statusCodeProvider.notifier).state = 200;
-
+        
+        // Refresh user data after login
+        await ref.read(userProvider.notifier).refreshUser();
+        
         notificationService.showNotification(
           message: responseData['message'] as String? ?? 'Login successful',
           type: NotificationType.success,
@@ -209,6 +215,10 @@ class SignInState extends ChangeNotifier {
 
       if (response?.statusCode == 200) {
         ref.read(guestSignInLoadingProvider.notifier).state = false;
+        
+        // Refresh user data after login
+        await ref.read(userProvider.notifier).refreshUser();
+        
         notificationService.showNotification(
           message: response?.data['message'] as String? ?? 'Welcome!',
           type: NotificationType.success,
@@ -273,6 +283,10 @@ class SignInState extends ChangeNotifier {
 
       if (response?.statusCode == 200 || response?.statusCode == 201) {
         ref.read(googleSignInLoadingProvider.notifier).state = false;
+        
+        // Refresh user data after login
+        await ref.read(userProvider.notifier).refreshUser();
+        
         notificationService.showNotification(
           message: response?.data['message'] as String? ?? 'Welcome!',
           type: NotificationType.success,
@@ -334,6 +348,23 @@ class SignInState extends ChangeNotifier {
             message: 'An unexpected error occurred during Google Sign In',
             type: NotificationType.error,
           );
+    }
+  }
+
+  Future<void> signOut(BuildContext context, WidgetRef ref) async {
+    try {
+      // Call your API to invalidate token
+      // final response = 
+      await DioConfig.dio?.post('/auth/logout');
+      
+      // Clear user data locally
+      await ref.read(userProvider.notifier).clearUser();
+      
+      if (context.mounted) {
+        context.router.replace(const AuthRoute());
+      }
+    } catch (error) {
+      // Handle error
     }
   }
 }

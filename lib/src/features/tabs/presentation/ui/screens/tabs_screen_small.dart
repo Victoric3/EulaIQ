@@ -12,15 +12,15 @@ class TabsScreenSmall extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return AutoTabsRouter(
       routes: const [
         HomeRoute(),
         LibraryRoute(),
-        ScheduleRoute(),
         CreateRoute(),
+        ScheduleRoute(),
         CommunityRoute(),
       ],
       transitionBuilder: (context, child, animation) => FadeTransition(

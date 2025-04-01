@@ -28,14 +28,12 @@ class AppColors {
 class AppTheme {
   static ThemeData get lightTheme => ThemeData(
         primaryColor: AppColors.brandDeepGold,
-        colorScheme: ColorScheme.light(
+        colorScheme: const ColorScheme.light(
           primary: AppColors.brandDeepGold,
           secondary: AppColors.brandWarmOrange,
-          background: AppColors.neutralLightGray,
           surface: AppColors.neutralLightGray,
           onPrimary: AppColors.textPrimary,
           onSecondary: AppColors.textPrimary,
-          onBackground: AppColors.textDark,
           onSurface: AppColors.textDark,
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -48,14 +46,12 @@ class AppTheme {
 
   static ThemeData get darkTheme => ThemeData(
         primaryColor: AppColors.neonCyan,
-        colorScheme: ColorScheme.dark(
+        colorScheme: const ColorScheme.dark(
           primary: AppColors.neonCyan,
           secondary: AppColors.neonPurple,
-          background: AppColors.darkBg,
           surface: AppColors.darkBg,
           onPrimary: AppColors.textPrimary,
           onSecondary: AppColors.textPrimary,
-          onBackground: AppColors.textPrimary,
           onSurface: AppColors.textPrimary,
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(

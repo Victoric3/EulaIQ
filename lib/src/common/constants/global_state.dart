@@ -9,7 +9,6 @@ final successProvider = StateProvider<String?>((ref) => null);
 final statusProvider = StateProvider<String?>((ref) => null);
 final email = StateProvider<String?>((ref) => null);
 final statusCodeProvider = StateProvider<int?>((ref) => null);
-final userProvider = StateProvider<Map<String, dynamic>?>((ref) => null);
 final emailProvider = StateProvider<String>((ref) => '');
 
 // Function to set error and success messages and clear them after 5 seconds

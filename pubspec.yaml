@@ -40,6 +40,15 @@ dependencies:
   firebase_messaging: ^14.7.10
   flutter_local_notifications: ^18.0.1
   firebase_in_app_messaging: ^0.7.5+7
+  file_picker: ^9.0.2
+  equatable: ^2.0.7
+  timeago: ^3.7.0
+  shimmer: ^3.0.0
+  emoji_picker_flutter: ^4.3.0
+  syncfusion_flutter_pdfviewer: ^28.1.37
+  flutter_epub_viewer: ^1.2.1
+  open_file: ^3.5.10
+
 
 dependency_overrides:
   collection: ^1.17.2
@@ -62,8 +71,15 @@ flutter:
   assets:
     - assets/images/
     - assets/brand_assets/
+    - assets/animations/
     - assets/brand_assets/Eula_dipa.png
     - assets/brand_assets/Eula.png
     - assets/images/app-logo.png
     - assets/icons/google-icon.png
+    - assets/animations/processing.json
+    - assets/animations/processing-darkmode.json
+    - assets/animations/success-lightmode.json
+    - assets/animations/success-darkmode.json
+    - assets/animations/upload-lightmode.json
+    - assets/animations/upload-darkmode.json
 
