@@ -31,6 +31,7 @@ class CreateScreen extends ConsumerStatefulWidget {
 class _CreateScreenState extends ConsumerState<CreateScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   CancelToken? _uploadCancelToken;
+  String? _lastProcessedEbookId; // Add this variable to track the last added eBook
 
   @override
   void initState() {
@@ -1193,16 +1194,24 @@ class _CreateScreenState extends ConsumerState<CreateScreen> with SingleTickerPr
     final bool hasEbook = latestEbook != null;
     
     if (hasEbook) {
-      // Force the library to update with the new eBook in background
-      ref.read(libraryProvider.notifier).addNewEbook(latestEbook);
+      // Check if this eBook has already been added to the library
+      final bool alreadyAdded = _lastProcessedEbookId == latestEbook.id;
       
-      // Clear the latest eBook after injecting to prevent duplicate additions
-      ref.read(latestCreatedEbookProvider.notifier).state = null;
+      if (!alreadyAdded) {
+        // Only add to library if it hasn't been added before
+        print("Adding new eBook to library: ${latestEbook.id}");
+        ref.read(libraryProvider.notifier).addNewEbook(latestEbook);
+        
+        // Update our tracker with this eBook's ID
+        _lastProcessedEbookId = latestEbook.id;
+        
+        // Set refresh flag for when user visits library later
+        ref.read(libraryRefreshProvider.notifier).state = true;
+      } else {
+        print("Skipping duplicate addition for eBook: ${latestEbook.id}");
+      }
       
-      // Set refresh flag for when user visits library later
-      ref.read(libraryRefreshProvider.notifier).state = true;
-      
-      // Navigate directly to the eBook detail screen
+      // Navigate directly to the eBook detail screen (whether added or not)
       context.router.navigate(EbookDetailRoute(
         id: latestEbook.id,
         slug: latestEbook.slug,

@@ -58,6 +58,12 @@ abstract class _$AppRouter extends RootStackRouter {
         ),
       );
     },
+    ExamHistoryRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ExamHistoryScreen(),
+      );
+    },
     HomeRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -74,6 +80,62 @@ abstract class _$AppRouter extends RootStackRouter {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const LibraryScreen(),
+      );
+    },
+    MeRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const MeScreen(),
+      );
+    },
+    PrivacyPolicyRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const PrivacyPolicyScreen(),
+      );
+    },
+    QuizOptionsRoute.name: (routeData) {
+      final args = routeData.argsAs<QuizOptionsRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: QuizOptionsScreen(
+          key: args.key,
+          ebookId: args.ebookId,
+          preSelectedExamId: args.preSelectedExamId,
+        ),
+      );
+    },
+    QuizResultsRoute.name: (routeData) {
+      final args = routeData.argsAs<QuizResultsRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: QuizResultsScreen(
+          key: args.key,
+          examHistoryId: args.examHistoryId,
+        ),
+      );
+    },
+    QuizReviewRoute.name: (routeData) {
+      final args = routeData.argsAs<QuizReviewRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: QuizReviewScreen(
+          key: args.key,
+          questions: args.questions,
+        ),
+      );
+    },
+    QuizRoute.name: (routeData) {
+      final args = routeData.argsAs<QuizRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: QuizScreen(
+          key: args.key,
+          questions: args.questions,
+          durationPerQuestion: args.durationPerQuestion,
+          totalDuration: args.totalDuration,
+          examOptions: args.examOptions,
+        ),
       );
     },
     ReaderRoute.name: (routeData) {
@@ -129,6 +191,18 @@ abstract class _$AppRouter extends RootStackRouter {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const TabsScreenSmall(),
+      );
+    },
+    TermsOfServiceRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const TermsOfServiceScreen(),
+      );
+    },
+    UserAnalyticsRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const UserAnalyticsScreen(),
       );
     },
     VerificationCodeRoute.name: (routeData) {
@@ -288,6 +362,20 @@ class EbookDetailRouteArgs {
 }
 
 /// generated route for
+/// [ExamHistoryScreen]
+class ExamHistoryRoute extends PageRouteInfo<void> {
+  const ExamHistoryRoute({List<PageRouteInfo>? children})
+      : super(
+          ExamHistoryRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ExamHistoryRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
 /// [HomeScreen]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})
@@ -327,6 +415,205 @@ class LibraryRoute extends PageRouteInfo<void> {
   static const String name = 'LibraryRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [MeScreen]
+class MeRoute extends PageRouteInfo<void> {
+  const MeRoute({List<PageRouteInfo>? children})
+      : super(
+          MeRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'MeRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [PrivacyPolicyScreen]
+class PrivacyPolicyRoute extends PageRouteInfo<void> {
+  const PrivacyPolicyRoute({List<PageRouteInfo>? children})
+      : super(
+          PrivacyPolicyRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'PrivacyPolicyRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [QuizOptionsScreen]
+class QuizOptionsRoute extends PageRouteInfo<QuizOptionsRouteArgs> {
+  QuizOptionsRoute({
+    Key? key,
+    required String ebookId,
+    String? preSelectedExamId,
+    List<PageRouteInfo>? children,
+  }) : super(
+          QuizOptionsRoute.name,
+          args: QuizOptionsRouteArgs(
+            key: key,
+            ebookId: ebookId,
+            preSelectedExamId: preSelectedExamId,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'QuizOptionsRoute';
+
+  static const PageInfo<QuizOptionsRouteArgs> page =
+      PageInfo<QuizOptionsRouteArgs>(name);
+}
+
+class QuizOptionsRouteArgs {
+  const QuizOptionsRouteArgs({
+    this.key,
+    required this.ebookId,
+    this.preSelectedExamId,
+  });
+
+  final Key? key;
+
+  final String ebookId;
+
+  final String? preSelectedExamId;
+
+  @override
+  String toString() {
+    return 'QuizOptionsRouteArgs{key: $key, ebookId: $ebookId, preSelectedExamId: $preSelectedExamId}';
+  }
+}
+
+/// generated route for
+/// [QuizResultsScreen]
+class QuizResultsRoute extends PageRouteInfo<QuizResultsRouteArgs> {
+  QuizResultsRoute({
+    Key? key,
+    required String examHistoryId,
+    List<PageRouteInfo>? children,
+  }) : super(
+          QuizResultsRoute.name,
+          args: QuizResultsRouteArgs(
+            key: key,
+            examHistoryId: examHistoryId,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'QuizResultsRoute';
+
+  static const PageInfo<QuizResultsRouteArgs> page =
+      PageInfo<QuizResultsRouteArgs>(name);
+}
+
+class QuizResultsRouteArgs {
+  const QuizResultsRouteArgs({
+    this.key,
+    required this.examHistoryId,
+  });
+
+  final Key? key;
+
+  final String examHistoryId;
+
+  @override
+  String toString() {
+    return 'QuizResultsRouteArgs{key: $key, examHistoryId: $examHistoryId}';
+  }
+}
+
+/// generated route for
+/// [QuizReviewScreen]
+class QuizReviewRoute extends PageRouteInfo<QuizReviewRouteArgs> {
+  QuizReviewRoute({
+    Key? key,
+    required List<Map<String, dynamic>> questions,
+    List<PageRouteInfo>? children,
+  }) : super(
+          QuizReviewRoute.name,
+          args: QuizReviewRouteArgs(
+            key: key,
+            questions: questions,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'QuizReviewRoute';
+
+  static const PageInfo<QuizReviewRouteArgs> page =
+      PageInfo<QuizReviewRouteArgs>(name);
+}
+
+class QuizReviewRouteArgs {
+  const QuizReviewRouteArgs({
+    this.key,
+    required this.questions,
+  });
+
+  final Key? key;
+
+  final List<Map<String, dynamic>> questions;
+
+  @override
+  String toString() {
+    return 'QuizReviewRouteArgs{key: $key, questions: $questions}';
+  }
+}
+
+/// generated route for
+/// [QuizScreen]
+class QuizRoute extends PageRouteInfo<QuizRouteArgs> {
+  QuizRoute({
+    Key? key,
+    required List<Map<String, dynamic>> questions,
+    required int durationPerQuestion,
+    required int totalDuration,
+    required Map<String, dynamic> examOptions,
+    List<PageRouteInfo>? children,
+  }) : super(
+          QuizRoute.name,
+          args: QuizRouteArgs(
+            key: key,
+            questions: questions,
+            durationPerQuestion: durationPerQuestion,
+            totalDuration: totalDuration,
+            examOptions: examOptions,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'QuizRoute';
+
+  static const PageInfo<QuizRouteArgs> page = PageInfo<QuizRouteArgs>(name);
+}
+
+class QuizRouteArgs {
+  const QuizRouteArgs({
+    this.key,
+    required this.questions,
+    required this.durationPerQuestion,
+    required this.totalDuration,
+    required this.examOptions,
+  });
+
+  final Key? key;
+
+  final List<Map<String, dynamic>> questions;
+
+  final int durationPerQuestion;
+
+  final int totalDuration;
+
+  final Map<String, dynamic> examOptions;
+
+  @override
+  String toString() {
+    return 'QuizRouteArgs{key: $key, questions: $questions, durationPerQuestion: $durationPerQuestion, totalDuration: $totalDuration, examOptions: $examOptions}';
+  }
 }
 
 /// generated route for
@@ -479,6 +766,34 @@ class TabsRouteSmall extends PageRouteInfo<void> {
         );
 
   static const String name = 'TabsRouteSmall';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [TermsOfServiceScreen]
+class TermsOfServiceRoute extends PageRouteInfo<void> {
+  const TermsOfServiceRoute({List<PageRouteInfo>? children})
+      : super(
+          TermsOfServiceRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'TermsOfServiceRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [UserAnalyticsScreen]
+class UserAnalyticsRoute extends PageRouteInfo<void> {
+  const UserAnalyticsRoute({List<PageRouteInfo>? children})
+      : super(
+          UserAnalyticsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'UserAnalyticsRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }

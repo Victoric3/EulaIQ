@@ -36,22 +36,27 @@ class FirebaseMessagingService {
         print('User granted provisional permission');
       }
 
-      // Initialize local notifications
-      const initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-      const initializationSettingsIOS = DarwinInitializationSettings(
-        requestSoundPermission: true,
-        requestBadgePermission: true,
-        requestAlertPermission: true,
-      );
-      const initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid,
-        iOS: initializationSettingsIOS,
-      );
+      try {
+        // Initialize local notifications with error handling
+        const initializationSettingsAndroid = AndroidInitializationSettings('@drawable/notification_icon');
+        const initializationSettingsIOS = DarwinInitializationSettings(
+          requestSoundPermission: true,
+          requestBadgePermission: true,
+          requestAlertPermission: true,
+        );
+        const initializationSettings = InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
 
-      await _localNotifications.initialize(
-        initializationSettings,
-        onDidReceiveNotificationResponse: _onNotificationTapped,
-      );
+        await _localNotifications.initialize(
+          initializationSettings,
+          onDidReceiveNotificationResponse: _onNotificationTapped,
+        );
+      } catch (e) {
+        print('Failed to initialize local notifications: $e');
+        // Continue with app initialization even if notifications fail
+      }
 
       // Get FCM token
       fcmToken = await _firebaseMessaging.getToken();
@@ -81,7 +86,7 @@ class FirebaseMessagingService {
 
     } catch (e) {
       print('Firebase Messaging initialization error: $e');
-      rethrow;
+      // Don't rethrow here to prevent app crashes
     }
   }
 

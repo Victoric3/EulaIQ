@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:eulaiq/src/common/common.dart';
+import 'package:eulaiq/src/common/services/notification_service.dart';
+import 'package:eulaiq/src/common/theme/app_theme.dart';
+import 'package:eulaiq/src/features/quiz/presentation/ui/widgets/quiz_summary_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +13,8 @@ import 'package:flutter_epub_viewer/flutter_epub_viewer.dart';
 import 'package:eulaiq/src/features/reader/presentation/providers/ebook_sections_provider.dart';
 import 'package:eulaiq/src/features/reader/presentation/providers/reader_service_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../../common/widgets/notification_card.dart';
 
 @RoutePage()
 class ReaderScreen extends ConsumerStatefulWidget {
@@ -26,7 +31,7 @@ class ReaderScreen extends ConsumerStatefulWidget {
 class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   late EpubController _epubController;
   String? _lastCfi;
-  final EpubFlow _currentFlow = EpubFlow.scrolled;
+  EpubFlow _currentFlow = EpubFlow.scrolled;
   double _fontSize = 16.0;
   bool _showUI = true;
   bool _isDarkMode = false;
@@ -51,6 +56,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   void initState() {
     super.initState();
     _epubController = EpubController();
+    
     _loadSettings();
     _loadLastPosition();
     SystemChrome.setPreferredOrientations([
@@ -104,6 +110,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       _currentFontFamily = prefs.getString('fontFamily') ?? 'Default';
       _lineHeight = prefs.getDouble('lineHeight') ?? 1.5;
       _margin = prefs.getDouble('margin') ?? 16.0;
+      // Load flow type preference (default to scrolled if not found)
+      final flowType = prefs.getString('flowType') ?? 'scrolled';
+      _currentFlow = flowType == 'paginated' ? EpubFlow.paginated : EpubFlow.scrolled;
     });
   }
 
@@ -114,6 +123,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     await prefs.setString('fontFamily', _currentFontFamily);
     await prefs.setDouble('lineHeight', _lineHeight);
     await prefs.setDouble('margin', _margin);
+    // Save flow type preference
+    await prefs.setString('flowType', _currentFlow == EpubFlow.paginated ? 'paginated' : 'scrolled');
   }
 
   String? _parseInitialCfi(String? savedLocation) {
@@ -198,6 +209,16 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 onPressed: () => context.router.pop(),
               ),
               actions: [
+                // Refresh Button
+                IconButton(
+                  icon: Icon(
+                    Icons.refresh,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
+                  tooltip: 'Refresh eBook content',
+                  onPressed: _refreshEbook,
+                ),
+                // Your existing buttons...
                 IconButton(
                   icon: Icon(
                     Icons.list,
@@ -255,8 +276,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                             
                             // Increased bottom padding for better scrolling experience
                             bottom: _showUI 
-                                ? kBottomNavigationBarHeight + MediaQuery.of(context).padding.bottom
+                                ? kBottomNavigationBarHeight + MediaQuery.of(context).padding.bottom 
                                 : MediaQuery.of(context).padding.bottom,
+                            
                           ),
                           child: EpubViewer(
                             key: _epubViewerKey,
@@ -430,6 +452,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       _lastCfi = location.startCfi;
       _currentProgress = location.progress;
     });
+    
     final locationData = {
       'startCfi': location.startCfi,
       'endCfi': location.endCfi,
@@ -471,9 +494,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  '${(_currentProgress * 100).toInt()}% read',
-                  style: Theme.of(context).textTheme.bodySmall,
+                Row(
+                  children: [
+                    Text(
+                      '${(_currentProgress * 100).toInt()}% read',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    )
+                  ],
                 ),
               ],
             ),
@@ -600,6 +627,47 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                             _setSystemUIOverlayStyle();
                             _saveSettings();
                           },
+                        ),
+                      ),
+                      // In the _showReaderSettings method, add this ListTile after dark mode toggle:
+                      ListTile(
+                        title: Text(
+                          'Reading Mode',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        subtitle: Row(
+                          children: [
+                            Expanded(
+                              child: RadioListTile<EpubFlow>(
+                                title: const Text('Pages'),
+                                value: EpubFlow.paginated,
+                                groupValue: _currentFlow,
+                                contentPadding: EdgeInsets.zero,
+                                dense: true,
+                                onChanged: (value) {
+                                  setModalState(() => _currentFlow = value!);
+                                  setState(() => _currentFlow = value!);
+                                  _saveSettings();
+                                  _updateReaderTheme();
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: RadioListTile<EpubFlow>(
+                                title: const Text('Scrolling'),
+                                value: EpubFlow.scrolled,
+                                groupValue: _currentFlow,
+                                contentPadding: EdgeInsets.zero,
+                                dense: true,
+                                onChanged: (value) {
+                                  setModalState(() => _currentFlow = value!);
+                                  setState(() => _currentFlow = value!);
+                                  _saveSettings();
+                                  _updateReaderTheme();
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       ListTile(
@@ -865,32 +933,106 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   void _generateAudio() {
-    // Placeholder for audio generation
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Audio generation started for this eBook'),
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-    );
-  }
+  // Show "coming soon" notification
+  final notificationService = ref.read(notificationServiceProvider);
+  notificationService.showNotification(
+    message: 'Audio generation feature coming soon!',
+    type: NotificationType.info,
+    duration: const Duration(seconds: 3),
+  );
+}
 
   void _createQuestions() {
-    // Placeholder for question creation
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Question generation started for this eBook'),
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-    );
-  }
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final scrimColor = Colors.black.withOpacity(0.5);
+  
+  // Show quiz summary dialog
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    isDismissible: true,
+    enableDrag: true,
+    useRootNavigator: true,
+    backgroundColor: Colors.transparent,
+    barrierColor: scrimColor,
+    builder: (context) {
+      return FractionallySizedBox(
+        heightFactor: 0.95, // Takes up 95% of the screen
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: Container(
+            color: isDark ? AppColors.darkBg : Colors.white,
+            child: QuizSummaryView(
+              ebookId: widget.storyId,
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
 
-  void _createSummary() {
-    // Placeholder for summary creation
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Summary generation started for this eBook'),
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
+ void _createSummary() {
+  // Show "coming soon" notification
+  final notificationService = ref.read(notificationServiceProvider);
+  notificationService.showNotification(
+    message: 'Summary generation feature coming soon!',
+    type: NotificationType.info,
+    duration: const Duration(seconds: 3),
+  );
+}
+
+  Future<void> _refreshEbook() async {
+    final notificationService = NotificationService();
+    
+    // Show refreshing notification
+    notificationService.showNotification(
+      message: 'Refreshing eBook content...',
+      type: NotificationType.info,
+      duration: const Duration(seconds: 2),
     );
+    
+    try {
+      // Save current position before refresh
+      final currentCfi = _lastCfi;
+      
+      // Reset the key to force rebuild of the viewer
+      setState(() {
+        _epubViewerKey = UniqueKey();
+      });
+      
+      // Download fresh copy from server with forceRefresh flag
+      await ref
+          .read(
+            epubProvider((
+              id: widget.storyId,
+              title: widget.title,
+            )).notifier,
+          )
+          .downloadEpub(forceRefresh: true);
+      
+      // Show success notification
+      notificationService.showNotification(
+        message: 'eBook refreshed successfully!',
+        type: NotificationType.success,
+        duration: const Duration(seconds: 2),
+      );
+      
+      // Restore position after a short delay to ensure content is loaded
+      if (currentCfi != null) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _epubController.display(cfi: currentCfi);
+        });
+      }
+    } catch (e) {
+      print('Error refreshing eBook: $e');
+      
+      // Show error notification
+      notificationService.showNotification(
+        message: 'Failed to refresh eBook: ${e.toString()}',
+        type: NotificationType.error,
+        duration: const Duration(seconds: 3),
+      );
+    }
   }
 }

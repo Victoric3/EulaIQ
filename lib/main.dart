@@ -11,7 +11,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:eulaiq/src/common/utils/app_lifecycle_manager.dart';
 import 'package:eulaiq/src/common/utils/memory_monitor.dart';
 
 @pragma('vm:entry-point')
@@ -33,31 +32,27 @@ class AppLifecycleObserver extends WidgetsBindingObserver {
 
 void main() async {
   try {
-    // Set error handling
-    FlutterError.onError = (details) {
-      FlutterError.presentError(details);
-      debugPrint('Flutter error: ${details.exception}');
-    };
-    
-    // Reset app state on start (helps with hot reload)
     WidgetsFlutterBinding.ensureInitialized();
-    AppLifecycleManager.resetAppState();
-    
-    // Register the observer for lifecycle events
-    WidgetsBinding.instance.addObserver(AppLifecycleObserver());
     
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-
-    // Background message handler must be registered before initializing FCM
+    
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
+    
     // Setup notification channel first
     await _setupNotificationChannel();
     
     final prefs = await SharedPreferences.getInstance();
-    final messagingService = await FirebaseMessagingService.create();
+    
+    // Try to initialize messaging service but continue if it fails
+    FirebaseMessagingService? messagingService;
+    try {
+      messagingService = await FirebaseMessagingService.create();
+    } catch (e) {
+      print('Warning: Firebase messaging initialization failed: $e');
+      // Continue without messaging service
+    }
     
     if (!kIsWeb) {
       await DioConfig.setupDio();
@@ -70,7 +65,8 @@ void main() async {
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
-          firebaseMessagingServiceProvider.overrideWithValue(messagingService),
+          if (messagingService != null)
+            firebaseMessagingServiceProvider.overrideWithValue(messagingService),
         ],
         child: MyApp(),
       ),
@@ -78,6 +74,13 @@ void main() async {
   } catch (e, stackTrace) {
     print('Startup error: $e');
     print('Stack trace: $stackTrace');
+    
+    // Run a minimal app even if initialization fails
+    runApp(MaterialApp(
+      home: Scaffold(
+        body: Center(child: Text('App initialization failed')),
+      ),
+    ));
   }
 }
 

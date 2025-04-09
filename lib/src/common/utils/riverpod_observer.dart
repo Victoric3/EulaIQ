@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logman/logman.dart';
+// import 'package:logman/logman.dart';
 
 class RiverpodObserver extends ProviderObserver {
-  final logman = Logman.instance;
+  // final logman = Logman.instance;
 
   @override
   void didAddProvider(
@@ -10,7 +10,7 @@ class RiverpodObserver extends ProviderObserver {
     Object? value,
     ProviderContainer container,
   ) {
-    logman.info('Provider $provider was initialized with $value');
+    // logman.info('Provider $provider was initialized with $value');
   }
 
   @override
@@ -18,7 +18,7 @@ class RiverpodObserver extends ProviderObserver {
     ProviderBase<Object?> provider,
     ProviderContainer container,
   ) {
-    logman.info('Provider $provider was disposed');
+    // logman.info('Provider $provider was disposed');
   }
 
   @override
@@ -28,9 +28,9 @@ class RiverpodObserver extends ProviderObserver {
     Object? newValue,
     ProviderContainer container,
   ) {
-    logman.info(
-      'Provider $provider updated from $previousValue to $newValue',
-    );
+    // logman.info(
+    //   'Provider $provider updated from $previousValue to $newValue',
+    // );
   }
 
   @override
@@ -40,6 +40,6 @@ class RiverpodObserver extends ProviderObserver {
     StackTrace stackTrace,
     ProviderContainer container,
   ) {
-    logman.info('Provider $provider threw $error at $stackTrace');
+    // logman.info('Provider $provider threw $error at $stackTrace');
   }
 }

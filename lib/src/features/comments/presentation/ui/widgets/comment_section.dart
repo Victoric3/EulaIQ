@@ -1,10 +1,10 @@
+import 'package:eulaiq/src/common/theme/app_theme.dart';
+import 'package:eulaiq/src/features/comments/presentation/providers/comment_provider.dart';
 import 'package:eulaiq/src/features/comments/presentation/ui/widgets/comment_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:eulaiq/src/common/theme/app_theme.dart';
-import 'package:eulaiq/src/features/comments/presentation/providers/comment_provider.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
 class CommentSection extends ConsumerStatefulWidget {
@@ -93,52 +93,93 @@ class _CommentSectionState extends ConsumerState<CommentSection> with SingleTick
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(commentsProvider(widget.storyId));
     
-    // Calculate bottom padding to avoid keyboard overlap
-    final bottomPadding = _showEmojiKeyboard 
-        ? 0.0  // No need for padding when emoji keyboard is showing
-        : MediaQuery.of(context).viewInsets.bottom;
+    // Use MediaQuery to get screen dimensions
+    final screenSize = MediaQuery.of(context).size;
     
     return Container(
+      // Set a specific height based on available screen space
+      height: screenSize.height * 0.85, // This should match your modal sheet constraints
       color: widget.backgroundColor ?? (isDark ? AppColors.darkBg : Colors.white),
-      // Apply padding at the container level
-      padding: EdgeInsets.only(bottom: bottomPadding),
-      child: Column(
-        children: [
-          // TikTok-style drag handle
-          _buildDragHandle(isDark),
-          
-          // Header with comment count
-          _buildHeader(isDark, state),
-          
-          // Comments list
-          Expanded(
-            child: state.isLoading 
-              ? _buildLoadingIndicator(isDark)
-              : state.comments.isEmpty && !state.isLoading
-                ? _buildEmptyState(isDark)
-                : _buildCommentList(isDark, state),
-          ),
-          
-          // WhatsApp-style input at bottom
-          _buildCommentInput(isDark),
-          
-          // WhatsApp-style emoji keyboard
-          if (_showEmojiKeyboard) _buildEmojiKeyboard(isDark),
-        ],
+      child: SafeArea(
+        // Only apply bottom safe area to avoid notch issues
+        top: false,
+        child: Stack(
+          // Make sure Stack takes full container size
+          fit: StackFit.expand,
+          children: [
+            // Column for top elements and scrollable content
+            Column(
+              children: [
+                // TikTok-style drag handle
+                _buildDragHandle(isDark),
+                
+                // Header with comment count
+                _buildHeader(isDark, state),
+                
+                // Comments list - should fill available space
+                Expanded(
+                  child: state.isLoading 
+                    ? _buildLoadingIndicator(isDark)
+                    : state.comments.isEmpty && !state.isLoading
+                      ? _buildEmptyState(isDark)
+                      : _buildCommentList(isDark, state),
+                ),
+                
+                // Add padding at the bottom to make room for the fixed input area
+                SizedBox(height: 70 + (_showEmojiKeyboard ? 250 : 0)),
+              ],
+            ),
+            
+            // Input field positioned at the absolute bottom
+            Positioned(
+              left: 0,
+              right: 0,
+              // Use system keyboard height when regular keyboard is shown, 0 when showing emoji keyboard
+              bottom: _showEmojiKeyboard ? 0 : MediaQuery.of(context).viewInsets.bottom,
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Comment input
+                    _buildCommentInput(isDark),
+                    
+                    // Emoji keyboard with fixed height
+                    if (_showEmojiKeyboard)
+                      Container(
+                        height: 250,
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.black : Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 5,
+                              offset: const Offset(0, -1),
+                            ),
+                          ],
+                        ),
+                        child: _buildEmojiKeyboard(isDark),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildDragHandle(bool isDark) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).pop(), // TikTok allows tapping handle to close
+      onTap: () => Navigator.of(context).pop(),
       child: Container(
         width: double.infinity,
         height: 24,
         alignment: Alignment.center,
         child: Container(
-          width: 36, // TikTok has a smaller handle
-          height: 4,  // Thinner like TikTok
+          width: 36, 
+          height: 4, 
           decoration: BoxDecoration(
             color: isDark ? Colors.white38 : Colors.black26,
             borderRadius: BorderRadius.circular(2),
@@ -267,67 +308,42 @@ class _CommentSectionState extends ConsumerState<CommentSection> with SingleTick
   }
 
   Widget _buildCommentList(bool isDark, CommentsState state) {
-    return Stack(
-      children: [
-        ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          itemCount: state.comments.length + (state.pagination.hasMore ? 1 : 0),
-          itemBuilder: (context, index) {
-            // Show loading indicator at the bottom when loading more
-            if (index == state.comments.length) {
-              if (state.isLoadingMore) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: isDark ? AppColors.neonCyan : AppColors.brandDeepGold,
-                    ),
-                  ),
-                );
-              } else {
-                // Load more when reaching the bottom
-                Future.microtask(() {
-                  ref.read(commentsProvider(widget.storyId).notifier).loadMoreComments();
-                });
-                return const SizedBox(height: 50);
-              }
-            }
-            
-            final comment = state.comments[index];
-            return CommentItem(
-              comment: comment,
-              storyId: widget.storyId,
-              isDark: isDark,
-              onReply: _handleReply, // Use our new method here
-            );
-          },
-        ),
-        
-        // Error toast if needed
-        if (state.errorMessage != null)
-          Positioned(
-            bottom: 16,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.red.shade800 : Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  'Error: ${state.errorMessage}',
-                  style: TextStyle(
-                    color: isDark ? Colors.white : Colors.red.shade900,
-                  ),
+    return ListView.builder(
+      controller: _scrollController,
+      // Add padding at the bottom to ensure content doesn't get hidden behind the input
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      physics: const AlwaysScrollableScrollPhysics(),
+      itemCount: state.comments.length + (state.pagination.hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        // Show loading indicator at the bottom when loading more
+        if (index == state.comments.length) {
+          if (state.isLoadingMore) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: isDark ? AppColors.neonCyan : AppColors.brandDeepGold,
                 ),
               ),
-            ),
-          ),
-      ],
+            );
+          } else {
+            // Load more when reaching the bottom
+            Future.microtask(() {
+              ref.read(commentsProvider(widget.storyId).notifier).loadMoreComments();
+            });
+            return const SizedBox(height: 50);
+          }
+        }
+        
+        final comment = state.comments[index];
+        return CommentItem(
+          comment: comment,
+          storyId: widget.storyId,
+          isDark: isDark,
+          onReply: _handleReply, // Use our new method here
+        );
+      },
     );
   }
 
@@ -429,20 +445,15 @@ class _CommentSectionState extends ConsumerState<CommentSection> with SingleTick
                 child: IconButton(
                   onPressed: () {
                     setState(() {
-                      // WhatsApp behavior: toggle between emoji and keyboard
                       _showEmojiKeyboard = !_showEmojiKeyboard;
                       
-                      // If showing emoji keyboard, hide system keyboard
+                      // This is key - unfocus immediately to dismiss system keyboard
                       if (_showEmojiKeyboard) {
                         _commentFocusNode.unfocus();
-                        // Add a small delay for smoother transition
-                        Future.delayed(const Duration(milliseconds: 100), () {
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        });
+                        
+                        // Important: Manually update keyboard visibility metrics
+                        FocusScope.of(context).unfocus();
                       } else {
-                        // If hiding emoji keyboard, show system keyboard
                         _commentFocusNode.requestFocus();
                       }
                     });

@@ -656,9 +656,6 @@ Widget _buildRatingComponent(bool isDark, EbookModel ebook) {
   }
   
   Widget _buildActionButtons(bool isDark, EbookModel ebook) {
-  // Check which features are available
-  final hasAudio = ebook.hasAudio;
-  final hasQuizzes = ebook.hasQuizzes;
   
   return Column(
     children: [
@@ -699,18 +696,20 @@ Widget _buildRatingComponent(bool isDark, EbookModel ebook) {
         ),
       ),
       
-      // Secondary Actions: Listen and Quiz (if available)
-      if (hasAudio || hasQuizzes)
         Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Row(
             children: [
               // Listen button (if audio available)
-              if (hasAudio)
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      // Navigate to audio player
+                      print('Listen button pressed - showing notification');
+                      ref.read(notificationServiceProvider).showNotification(
+                        message: 'Audio features coming soon!',
+                        type: NotificationType.warning,
+                        duration: const Duration(seconds: 3),
+                      );
                     },
                     icon: Icon(
                       MdiIcons.headphones,
@@ -731,12 +730,6 @@ Widget _buildRatingComponent(bool isDark, EbookModel ebook) {
                   ),
                 ),
               
-              // Add spacing between buttons if both exist
-              if (hasAudio && hasQuizzes)
-                const SizedBox(width: 12),
-              
-              // Quiz button (if quizzes available)
-              if (hasQuizzes)
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _showQuizSummary(context, isDark, ebook.id),
@@ -755,7 +748,7 @@ Widget _buildRatingComponent(bool isDark, EbookModel ebook) {
         ),
       
       // Logs button (if in processing state)
-      if (ebook.status == 'processing') 
+      if (ebook.status == 'processing' || ebook.status == 'error') 
         Container(
           width: double.infinity,
           alignment: Alignment.center,
@@ -1486,8 +1479,6 @@ class _EbookDetailHeaderDelegate extends SliverPersistentHeaderDelegate {
     return true;
   }
 }
-
-// Add this method to _EbookDetailScreenState class
 
 Widget _buildBookmarkButton(bool isDark, EbookModel ebook, WidgetRef ref) {
   final isInReadingList = ebook.isInReadingList ?? false;

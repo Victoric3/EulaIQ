@@ -98,7 +98,7 @@ class EpubNotifier extends StateNotifier<EpubDownloadState> {
   }
   
   /// Download EPUB file from server
-  Future<void> downloadEpub() async {
+  Future<void> downloadEpub({bool forceRefresh = false}) async {
     print("Downloading EPUB for story: $storyId");
     
     // Start with loading state

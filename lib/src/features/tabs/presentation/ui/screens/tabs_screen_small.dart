@@ -17,11 +17,9 @@ class TabsScreenSmall extends ConsumerWidget {
     
     return AutoTabsRouter(
       routes: const [
-        HomeRoute(),
         LibraryRoute(),
         CreateRoute(),
-        ScheduleRoute(),
-        CommunityRoute(),
+        MeRoute(),
       ],
       transitionBuilder: (context, child, animation) => FadeTransition(
         opacity: animation,
@@ -86,11 +84,9 @@ class TabsScreenSmall extends ConsumerWidget {
                   selectedFontSize: 11,
                   unselectedFontSize: 11,
                   items: <BottomNavigationBarItem>[
-                    _buildNavItem(MdiIcons.homeVariant, 'Home', tabsRouter.activeIndex == 0, isDark),
-                    _buildNavItem(MdiIcons.bookshelf, 'Library', tabsRouter.activeIndex == 1, isDark),
-                    _buildNavItem(MdiIcons.plusCircle, 'Create', tabsRouter.activeIndex == 2, isDark, isCreate: true),
-                    _buildNavItem(MdiIcons.calendarText, 'Schedule', tabsRouter.activeIndex == 3, isDark),
-                    _buildNavItem(MdiIcons.accountGroup, 'Community', tabsRouter.activeIndex == 4, isDark),
+                    _buildNavItem(MdiIcons.bookshelf, 'Library', tabsRouter.activeIndex == 0, isDark),
+                    _buildNavItem(MdiIcons.plusCircle, 'Create', tabsRouter.activeIndex == 1, isDark, isCreate: true),
+                    _buildNavItem(MdiIcons.account, 'Me', tabsRouter.activeIndex == 2, isDark),
                   ],
                   currentIndex: tabsRouter.activeIndex,
                   onTap: tabsRouter.setActiveIndex,
@@ -106,8 +102,8 @@ class TabsScreenSmall extends ConsumerWidget {
   BottomNavigationBarItem _buildNavItem(IconData icon, String label, bool isActive, bool isDark, {bool isCreate = false}) {
     return BottomNavigationBarItem(
       icon: Container(
-        height: 32,
-        width: 32,
+        height: 36, // Slightly larger for better spacing with 3 tabs
+        width: 36,
         margin: const EdgeInsets.only(bottom: 4),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),

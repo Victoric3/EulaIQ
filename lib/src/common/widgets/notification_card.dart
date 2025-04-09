@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:eulaiq/src/common/theme/app_theme.dart';
 
@@ -95,92 +96,91 @@ class _NotificationCardState extends State<NotificationCard> with SingleTickerPr
             opacity: _fadeAnimation,
             child: Material(
               color: Colors.transparent,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: _getBackgroundColor(context),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: _getBorderColor(context).withOpacity(0.3),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: _getBorderColor(context).withOpacity(0.1),
-                      blurRadius: 12,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 4),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: _getBackgroundColor(context),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: _getBorderColor(context).withOpacity(0.5),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _getBorderColor(context).withOpacity(0.2),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ],
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      _getBackgroundColor(context),
-                      _getBackgroundColor(context).withOpacity(0.8),
-                    ],
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
+                    child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: _getBorderColor(context).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            _getIcon(),
-                            color: _getBorderColor(context),
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            widget.message,
-                            style: TextStyle(
-                              color: isDark ? Colors.white : Colors.black87,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () {
-                              _controller.reverse().then((_) => widget.onDismiss());
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: _getBorderColor(context).withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               child: Icon(
-                                Icons.close,
-                                size: 18,
-                                color: isDark ? Colors.white60 : Colors.black45,
+                                _getIcon(),
+                                color: _getBorderColor(context),
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                widget.message,
+                                style: TextStyle(
+                                  color: isDark ? Colors.white : Colors.black87,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () {
+                                  _controller.reverse().then((_) => widget.onDismiss());
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 18,
+                                    color: isDark ? Colors.white70 : Colors.black54,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: SizedBox(
+                            height: 2,
+                            child: LinearProgressIndicator(
+                              value: _progressAnimation.value,
+                              backgroundColor: _getBorderColor(context).withOpacity(0.2),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                _getBorderColor(context),
                               ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: SizedBox(
-                        height: 2,
-                        child: LinearProgressIndicator(
-                          value: _progressAnimation.value,
-                          backgroundColor: _getBorderColor(context).withOpacity(0.1),
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            _getBorderColor(context),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -195,14 +195,14 @@ class _NotificationCardState extends State<NotificationCard> with SingleTickerPr
     switch (widget.type) {
       case NotificationType.success:
         return isDark 
-            ? AppColors.neonCyan.withOpacity(0.08) 
-            : AppColors.brandDeepGold.withOpacity(0.05);
+            ? AppColors.neonCyan.withOpacity(0.2) 
+            : AppColors.brandDeepGold.withOpacity(0.15);
       case NotificationType.error:
-        return Colors.red.withOpacity(isDark ? 0.08 : 0.05);
+        return Colors.red.withOpacity(isDark ? 0.2 : 0.15);
       case NotificationType.warning:
-        return Colors.orange.withOpacity(isDark ? 0.08 : 0.05);
+        return Colors.orange.withOpacity(isDark ? 0.2 : 0.15);
       case NotificationType.info:
-        return Colors.blue.withOpacity(isDark ? 0.08 : 0.05);
+        return Colors.blue.withOpacity(isDark ? 0.2 : 0.15);
     }
   }
 
