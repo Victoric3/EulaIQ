@@ -49,6 +49,7 @@ dependencies:
   flutter_epub_viewer: ^1.2.1
   open_file: ^3.5.10
   fl_chart: ^0.70.2
+  just_audio: ^0.9.46
 
 
 dependency_overrides:

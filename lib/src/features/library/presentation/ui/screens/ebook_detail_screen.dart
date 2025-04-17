@@ -704,12 +704,11 @@ Widget _buildRatingComponent(bool isDark, EbookModel ebook) {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      print('Listen button pressed - showing notification');
-                      ref.read(notificationServiceProvider).showNotification(
-                        message: 'Audio features coming soon!',
-                        type: NotificationType.warning,
-                        duration: const Duration(seconds: 3),
-                      );
+                      context.router.push(AudioRoute(
+                        ebookId: ebook.id,
+                        title: ebook.title,
+                        imageUrl: ebook.coverImage,
+                      ));
                     },
                     icon: Icon(
                       MdiIcons.headphones,

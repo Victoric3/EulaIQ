@@ -84,7 +84,7 @@ class EbookProcessingNotifier extends StateNotifier<EnhancedEbookProcessingInfo>
   Future<void> uploadFile(
     PlatformFile file, {
     CancelToken? cancelToken,
-    Duration timeout = const Duration(seconds: 60),
+    Duration timeout = const Duration(minutes: 5),
     VoidCallback? onTimeout,
   }) async {
     // Update state to uploading

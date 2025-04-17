@@ -79,7 +79,7 @@ class EbookRepository {
     required PlatformFile file,
     required Function(double) onProgressUpdate,
     CancelToken? cancelToken,
-    Duration timeout = const Duration(seconds: 60),
+    Duration timeout = const Duration(seconds: 120),
   }) async {
     try {
       // Create form data

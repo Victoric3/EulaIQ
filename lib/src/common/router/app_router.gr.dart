@@ -15,6 +15,31 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
+    AudioRoute.name: (routeData) {
+      final args = routeData.argsAs<AudioRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: AudioScreen(
+          key: args.key,
+          ebookId: args.ebookId,
+          title: args.title,
+          imageUrl: args.imageUrl,
+        ),
+      );
+    },
+    AudioStreamingRoute.name: (routeData) {
+      final args = routeData.argsAs<AudioStreamingRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: AudioStreamingScreen(
+          key: args.key,
+          collectionId: args.collectionId,
+          title: args.title,
+          imageUrl: args.imageUrl,
+          fromMiniPlayer: args.fromMiniPlayer,
+        ),
+      );
+    },
     AuthRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -45,6 +70,12 @@ abstract class _$AppRouter extends RootStackRouter {
           ebookId: args.ebookId,
           page: args.page,
         ),
+      );
+    },
+    DownloadsRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const DownloadsScreen(),
       );
     },
     EbookDetailRoute.name: (routeData) {
@@ -219,6 +250,106 @@ abstract class _$AppRouter extends RootStackRouter {
 }
 
 /// generated route for
+/// [AudioScreen]
+class AudioRoute extends PageRouteInfo<AudioRouteArgs> {
+  AudioRoute({
+    Key? key,
+    required String ebookId,
+    String? title,
+    String? imageUrl,
+    List<PageRouteInfo>? children,
+  }) : super(
+          AudioRoute.name,
+          args: AudioRouteArgs(
+            key: key,
+            ebookId: ebookId,
+            title: title,
+            imageUrl: imageUrl,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'AudioRoute';
+
+  static const PageInfo<AudioRouteArgs> page = PageInfo<AudioRouteArgs>(name);
+}
+
+class AudioRouteArgs {
+  const AudioRouteArgs({
+    this.key,
+    required this.ebookId,
+    this.title,
+    this.imageUrl,
+  });
+
+  final Key? key;
+
+  final String ebookId;
+
+  final String? title;
+
+  final String? imageUrl;
+
+  @override
+  String toString() {
+    return 'AudioRouteArgs{key: $key, ebookId: $ebookId, title: $title, imageUrl: $imageUrl}';
+  }
+}
+
+/// generated route for
+/// [AudioStreamingScreen]
+class AudioStreamingRoute extends PageRouteInfo<AudioStreamingRouteArgs> {
+  AudioStreamingRoute({
+    Key? key,
+    required String collectionId,
+    required String title,
+    String? imageUrl,
+    bool fromMiniPlayer = false,
+    List<PageRouteInfo>? children,
+  }) : super(
+          AudioStreamingRoute.name,
+          args: AudioStreamingRouteArgs(
+            key: key,
+            collectionId: collectionId,
+            title: title,
+            imageUrl: imageUrl,
+            fromMiniPlayer: fromMiniPlayer,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'AudioStreamingRoute';
+
+  static const PageInfo<AudioStreamingRouteArgs> page =
+      PageInfo<AudioStreamingRouteArgs>(name);
+}
+
+class AudioStreamingRouteArgs {
+  const AudioStreamingRouteArgs({
+    this.key,
+    required this.collectionId,
+    required this.title,
+    this.imageUrl,
+    this.fromMiniPlayer = false,
+  });
+
+  final Key? key;
+
+  final String collectionId;
+
+  final String title;
+
+  final String? imageUrl;
+
+  final bool fromMiniPlayer;
+
+  @override
+  String toString() {
+    return 'AudioStreamingRouteArgs{key: $key, collectionId: $collectionId, title: $title, imageUrl: $imageUrl, fromMiniPlayer: $fromMiniPlayer}';
+  }
+}
+
+/// generated route for
 /// [AuthScreen]
 class AuthRoute extends PageRouteInfo<void> {
   const AuthRoute({List<PageRouteInfo>? children})
@@ -316,6 +447,20 @@ class DocumentViewerRouteArgs {
   String toString() {
     return 'DocumentViewerRouteArgs{key: $key, fileUrl: $fileUrl, title: $title, fileType: $fileType, ebookId: $ebookId, page: $page}';
   }
+}
+
+/// generated route for
+/// [DownloadsScreen]
+class DownloadsRoute extends PageRouteInfo<void> {
+  const DownloadsRoute({List<PageRouteInfo>? children})
+      : super(
+          DownloadsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'DownloadsRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for

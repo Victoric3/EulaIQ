@@ -2,6 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:eulaiq/src/common/router/auth_guard.dart';
 import 'package:eulaiq/src/features/Me/me.dart';
 import 'package:eulaiq/src/features/analytics/presentation/ui/screens/user_analytics_screen.dart';
+import 'package:eulaiq/src/features/audio/presentation/ui/screens/audio_screen.dart';
+import 'package:eulaiq/src/features/audio/presentation/ui/screens/audio_streaming_screen.dart';
+import 'package:eulaiq/src/features/audio/presentation/ui/screens/downloads_screen.dart';
 import 'package:eulaiq/src/features/auth/blocs/verify_code.dart';
 import 'package:eulaiq/src/features/auth/screens/auth_screen.dart';
 import 'package:eulaiq/src/features/auth/screens/intro_page.dart';
@@ -90,13 +93,28 @@ class AppRouter extends _$AppRouter {
       guards: [AuthGuard()],
     ),
     AutoRoute(
-      path: '/examHistory',
+      path: '/privacyPolicy',
       page: PrivacyPolicyRoute.page,
       guards: [AuthGuard()],
     ),
     AutoRoute(
-      path: '/examHistory',
+      path: '/termsOfService',
       page: TermsOfServiceRoute.page,
+      guards: [AuthGuard()],
+    ),
+    AutoRoute(
+      path: '/audio/:ebookId',
+      page: AudioRoute.page,
+      guards: [AuthGuard()],
+    ),
+    AutoRoute(
+      path: '/audio/stream/:collectionId',
+      page: AudioStreamingRoute.page,
+      guards: [AuthGuard()],
+    ),
+    AutoRoute(
+      path: '/downloads',
+      page: DownloadsRoute.page,
       guards: [AuthGuard()],
     ),
     CustomRoute(
